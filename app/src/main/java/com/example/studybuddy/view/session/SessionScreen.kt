@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.studybuddy.sessions
 import com.example.studybuddy.subjects
 import com.example.studybuddy.view.components.DeleteDialog
@@ -51,6 +52,8 @@ fun SessionScreenRoute(
     navigator: DestinationsNavigator
 )
 {
+    val viewModel:SessionScreenViewModel = hiltViewModel()
+
     SessionScreen(
         onBackButtonClick = { navigator.navigateUp()}
     )

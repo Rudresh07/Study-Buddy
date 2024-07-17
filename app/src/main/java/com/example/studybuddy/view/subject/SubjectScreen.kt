@@ -42,6 +42,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.studybuddy.domain.model.Subject
 import com.example.studybuddy.sessions
 import com.example.studybuddy.taskitems
@@ -64,6 +65,9 @@ data class SubjectScreenNavArgs(
 fun SubjectScreenRoute(
     navigator: DestinationsNavigator,
 ){
+
+    val viewModel:SubjectViewModel = hiltViewModel()
+
     SubjectScreen(
         onBackButtonClicked = { navigator.navigateUp() },
         onAddTaskButtonClick = {

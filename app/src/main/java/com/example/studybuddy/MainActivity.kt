@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.studybuddy.domain.model.Session
 import com.example.studybuddy.domain.model.Subject
@@ -17,7 +18,10 @@ import com.example.studybuddy.ui.theme.gradient4
 import com.example.studybuddy.ui.theme.gradient5
 import com.example.studybuddy.view.NavGraphs
 import com.ramcosta.composedestinations.DestinationsNavHost
+import dagger.hilt.android.AndroidEntryPoint
 
+
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -127,38 +131,31 @@ val subjects = listOf(
     Subject(
         name = "Math",
         goalHour = 10f,
-        color = gradient5, // Use appropriate color objects or gradients
+        color = gradient5.map { it.toArgb() }, // Use appropriate color objects or gradients
         SubjectId = 1
     ),
     Subject(
         name = "Science",
         goalHour = 8f,
-        color = gradient4, // Use appropriate color objects or gradients
+        color = gradient4.map { it.toArgb() }, // Use appropriate color objects or gradients
         SubjectId = 2
     ),
     Subject(
         name = "History",
         goalHour = 6f,
-        color = gradient3, // Use appropriate color objects or gradients
+        color = gradient3.map { it.toArgb() }, // Use appropriate color objects or gradients
         SubjectId = 3
     ),
     Subject(
         name = "English",
         goalHour = 7f,
-        color = gradient2, // Use appropriate color objects or gradients
+        color = gradient2.map { it.toArgb() }, // Use appropriate color objects or gradients
         SubjectId = 4
     ),
     Subject(
         name = "Art",
         goalHour = 5f,
-        color = gradient1, // Use appropriate color objects or gradients
+        color = gradient1.map { it.toArgb() }, // Use appropriate color objects or gradients
         SubjectId = 5
     )
 )
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    StudyBuddyTheme {
-    }
-}

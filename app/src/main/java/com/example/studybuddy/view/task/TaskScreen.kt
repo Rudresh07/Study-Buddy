@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.studybuddy.subjects
 import com.example.studybuddy.ui.theme.Red
 import com.example.studybuddy.utils.Priority
@@ -67,6 +68,9 @@ data class TaskScreenNavArgs(
 fun TaskScreenRoute(
     navigator:DestinationsNavigator
 ){
+
+    val viewModel :TaskViewModel = hiltViewModel()
+
     TaskScreen(
         onBackButtonClick = {navigator.navigateUp()}
     )

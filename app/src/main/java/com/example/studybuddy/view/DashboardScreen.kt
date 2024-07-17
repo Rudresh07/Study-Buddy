@@ -36,21 +36,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.Navigator
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.studybuddy.R
-import com.example.studybuddy.domain.model.Session
 import com.example.studybuddy.domain.model.Subject
-import com.example.studybuddy.domain.model.Task
 import com.example.studybuddy.sessions
 import com.example.studybuddy.subjects
 import com.example.studybuddy.taskitems
-import com.example.studybuddy.ui.theme.gradient1
-import com.example.studybuddy.ui.theme.gradient2
-import com.example.studybuddy.ui.theme.gradient3
-import com.example.studybuddy.ui.theme.gradient4
-import com.example.studybuddy.ui.theme.gradient5
 import com.example.studybuddy.view.components.AddSubjectDialog
 import com.example.studybuddy.view.components.CountCards
 import com.example.studybuddy.view.components.DeleteDialog
@@ -70,6 +62,8 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 fun DashBoardScreenRoute(
     navigator: DestinationsNavigator
 ){
+    val viewModel : DashboardViewModel = hiltViewModel()
+
     DashboardScreen(
         onTaskCardClick ={taskId ->
                          taskId?.let{
@@ -293,7 +287,7 @@ private fun SubjectCardSection(
             items(subjectList){subject ->
                 SubjectCard(
                     subjectName = subject.name,
-                    gradientColors =subject.color,
+                    gradientColors =subject.color.map { Color(it) },
                     onClick = {onSubjectCardClick(subject.SubjectId)})
 
                 }

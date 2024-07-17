@@ -13,7 +13,7 @@ import com.example.studybuddy.ui.theme.gradient5
 data class Subject(
     val name: String,
     val goalHour:Float,
-    val color:List<Color>,
+    val color:List<Int>,
     @PrimaryKey(autoGenerate = true)
    val SubjectId:Int? = null
 ){
