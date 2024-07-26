@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.example.studybuddy.R
 import com.example.studybuddy.domain.model.Task
 import com.example.studybuddy.utils.Priority
+import com.example.studybuddy.utils.changeMillisToDateString
 
 fun LazyListScope.TaskList(
     sectionTitle:String,
@@ -44,6 +45,10 @@ fun LazyListScope.TaskList(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(text = sectionTitle,
+                    modifier = Modifier.padding(12.dp),
+                    style = MaterialTheme.typography.bodySmall)
+
+                Text(text = "See All",
                     modifier = Modifier.padding(12.dp),
                     style = MaterialTheme.typography.bodySmall)
 
@@ -119,7 +124,7 @@ private fun TaskCard(
                 else TextDecoration.None)
 
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(text = "${task.dueDate}",
+                Text(text = task.dueDate.changeMillisToDateString(),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.bodySmall,

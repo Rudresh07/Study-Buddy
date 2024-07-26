@@ -19,5 +19,9 @@ interface TaskRepository {
 
     fun getTaskBySubjectId(subjectId: Int): Flow<List<Task>>
 
+    fun getCompletedTaskBySubjectId(subjectId: Int): Flow<List<Task>>
+
     fun getAllTasks(): Flow<List<Task>>
+
+    fun getAllUpcomingTasks(): Flow<List<Task>>
 }

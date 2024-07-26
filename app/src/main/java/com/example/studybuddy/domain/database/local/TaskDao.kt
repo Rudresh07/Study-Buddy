@@ -1,10 +1,12 @@
 package com.example.studybuddy.domain.database.local
 
+import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
 import com.example.studybuddy.domain.model.Task
 import kotlinx.coroutines.flow.Flow
 
+@Dao
 interface TaskDao {
 
     @Upsert

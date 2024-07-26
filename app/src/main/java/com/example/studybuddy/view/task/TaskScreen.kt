@@ -27,11 +27,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,12 +44,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.studybuddy.subjects
-import com.example.studybuddy.ui.theme.Red
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.studybuddy.utils.Priority
+import com.example.studybuddy.utils.SnackbarEvent
 import com.example.studybuddy.utils.changeMillisToDateString
 import com.example.studybuddy.view.components.DeleteDialog
 import com.example.studybuddy.view.components.SubjectListDropDown
@@ -54,6 +56,8 @@ import com.example.studybuddy.view.components.TaskCheckBox
 import com.example.studybuddy.view.components.TaskDatePicker
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 
@@ -70,8 +74,12 @@ fun TaskScreenRoute(
 ){
 
     val viewModel :TaskViewModel = hiltViewModel()
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     TaskScreen(
+        state =state ,
+        onEvent = viewModel::onEvent,
+        snackbarEvent = viewModel.snackbarEventFlow,
         onBackButtonClick = {navigator.navigateUp()}
     )
 }
@@ -79,6 +87,9 @@ fun TaskScreenRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TaskScreen(
+    state: TaskState,
+    snackbarEvent: SharedFlow<SnackbarEvent>,
+    onEvent: (TaskEvent) -> Unit,
     onBackButtonClick: () -> Unit
 )
 {
@@ -89,15 +100,30 @@ private fun TaskScreen(
     var isTaskDatePickerOpen by rememberSaveable { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState(initialSelectedDateMillis = System.currentTimeMillis())
     var isDeleteTaskDialogOpen by rememberSaveable { mutableStateOf(false) }
-    var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
     var taskTitleError by remember{mutableStateOf<String?>(null)}
     var subjectTitle by remember { mutableStateOf("") }
+    val snackbarHostState = remember{ SnackbarHostState() }
+
+
+    LaunchedEffect(key1 = true) {
+        snackbarEvent.collectLatest { event ->
+            when (event) {
+                is SnackbarEvent.ShowSnackbar -> {
+                    snackbarHostState.showSnackbar(
+                        message = event.message,
+                        duration = event.duration
+                    )
+                }
+
+                SnackbarEvent.NavigateUp -> onBackButtonClick()
+            }
+        }
+    }
 
     taskTitleError = when{
-        title.isBlank() -> "Please enter task title"
-        title.length > 30 -> "Task title cannot be more than 30 characters"
-        title.length<4 -> "Task title cannot be less than 4 characters"
+        state.title.isBlank() -> "Please enter task title"
+        state.title.length > 30 -> "Task title cannot be more than 30 characters"
+       state.title.length<4 -> "Task title cannot be less than 4 characters"
 
         else-> null
     }
@@ -108,28 +134,33 @@ private fun TaskScreen(
                 " This action is irreversible",
         isOpen = isDeleteTaskDialogOpen ,
         onDismiss = {isDeleteTaskDialogOpen = false },
-        onConfirmBtnClick = {isDeleteTaskDialogOpen = false})
+        onConfirmBtnClick = {onEvent(TaskEvent.DeleteTask)
+            isDeleteTaskDialogOpen = false}
+    )
 
     TaskDatePicker(
         state = datePickerState,
         isOpen =isTaskDatePickerOpen ,
         onDismissRequest = { isTaskDatePickerOpen=false},
-        onConfirmRequest = { isTaskDatePickerOpen = false }
+        onConfirmRequest = {
+            onEvent(TaskEvent.OnDateChanged(millis=datePickerState.selectedDateMillis))
+            isTaskDatePickerOpen = false }
     )
 
     SubjectListDropDown(
         sheetState =sheetState ,
         isOpen = isSubjectDropDownOpen,
-        subjects = subjects ,
+        subjects = state.subjects ,
         onDismissRequest = {isSubjectDropDownOpen=false},
-        onSubjectClick ={
+        onSubjectClick ={subject ->
             isSubjectDropDownOpen = false
-            subjectTitle = it.name
+            subjectTitle = subject.name
 
             scope.launch { sheetState.hide() }.invokeOnCompletion {
                 if (!sheetState.isVisible) {
                     isSubjectDropDownOpen = false
                 }
+                onEvent(TaskEvent.OnRelatedSubjectSelect(subject))
             }
         }
     )
@@ -138,14 +169,15 @@ private fun TaskScreen(
     Scaffold(
     topBar = {
         TaskScreenTopBar(
-            isTaskExist = true,
-            isCompleted = false,
-            checkBoxBorderColor = Red,
+            isTaskExist = state.currentTaskId!=null,
+            isCompleted = state.isTaskComplete,
+            checkBoxBorderColor = state.priority.color,
             onBackButtonClick = onBackButtonClick,
-            onCheckBoxClick = {},
+            onCheckBoxClick = {onEvent(TaskEvent.OnIsCompletedChanged)},
             onDeleteButtonClick = {isDeleteTaskDialogOpen = true}
         )
-    }
+    },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState)}
 ) {paddingValues ->
 
     Column (modifier = Modifier
@@ -156,11 +188,11 @@ private fun TaskScreen(
     ){
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
-            value = title,
-            onValueChange = {title=it},
+            value = state.title,
+            onValueChange = {onEvent(TaskEvent.OnTitleChanged(it))},
             label = { Text(text = "Title")},
             singleLine = true,
-            isError = taskTitleError != null && title.isNotBlank(),
+            isError = taskTitleError != null && state.title.isNotBlank(),
             supportingText = { Text(text = taskTitleError.orEmpty())}
         )
 
@@ -169,13 +201,13 @@ private fun TaskScreen(
 
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
-            value = description,
-            onValueChange ={description=it},
+            value = state.description,
+            onValueChange ={onEvent(TaskEvent.OnDescriptionChanged(it))},
             label = { Text(text = "Description")},
             )
 
         Spacer(modifier = Modifier.height(20.dp))
-        
+
         Text(text = "Due Date",
             style = MaterialTheme.typography.bodySmall
         )
@@ -185,13 +217,13 @@ private fun TaskScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            Text(text = datePickerState.selectedDateMillis.changeMillisToDateString(),
+            Text(text = state.dueDate.changeMillisToDateString(),
                 style = MaterialTheme.typography.bodyLarge
             )
             IconButton(onClick = { isTaskDatePickerOpen = true }) {
                 Icon(imageVector = Icons.Default.DateRange,
                     contentDescription ="Select Due Date" )
-                
+
             }
 
         }
@@ -210,13 +242,13 @@ private fun TaskScreen(
                     modifier = Modifier.weight(1f),
                     label = it.name,
                     backgroundColor = it.color,
-                    borderColor = if (it == Priority.MEDIUM){
+                    borderColor = if (it == state.priority){
                         Color.White
                     } else Color.Transparent,
-                    labelColor = if (it == Priority.MEDIUM){
+                    labelColor = if (it == state.priority){
                         Color.White
                     } else Color.White.copy(alpha = 0.7f),
-                    onClick = {}
+                    onClick = {onEvent(TaskEvent.OnPriorityChanged(it))}
                 )
             }
         }
@@ -233,13 +265,14 @@ private fun TaskScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = if (subjectTitle.isBlank()) "Select Subject" else subjectTitle,
+            val firstSubject = state.subjects.firstOrNull()?.name ?: ""
+            Text(text = state.relatedToSubject?:firstSubject,
                 style = MaterialTheme.typography.bodyLarge
             )
 
             IconButton(onClick = { isSubjectDropDownOpen=true }) {
                 Icon(imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription ="Select Subject" )
+                    contentDescription =state.relatedToSubject )
 
             }
 
@@ -247,7 +280,7 @@ private fun TaskScreen(
 
         Button(
             enabled = taskTitleError==null,
-            onClick = { /*TODO*/ },
+            onClick = { onEvent(TaskEvent.SaveTask) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 12.dp)

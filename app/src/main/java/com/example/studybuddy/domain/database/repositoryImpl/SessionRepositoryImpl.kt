@@ -4,33 +4,40 @@ import com.example.studybuddy.domain.database.local.SessionDao
 import com.example.studybuddy.domain.model.Session
 import com.example.studybuddy.domain.model.repository.SessionRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.take
 import javax.inject.Inject
 
 class SessionRepositoryImpl @Inject constructor(
     private val sessionDao: SessionDao
 ):SessionRepository {
     override suspend fun insertSession(session: Session) {
-        TODO("Not yet implemented")
+        sessionDao.insertSession(session)
     }
 
     override suspend fun deleteSession(session: Session) {
-        TODO("Not yet implemented")
+        return sessionDao.deleteSession(session)
     }
 
     override fun getAllSessions(): Flow<List<Session>> {
-        TODO("Not yet implemented")
+       return sessionDao.getAllSessions()
     }
+
+
+    override fun getRecentFiveSessions(): Flow<List<Session>> {
+        return sessionDao.getAllSessions().take(5)
+    }
+
 
     override suspend fun getSessionBySubjectId(subjectId: Int): Flow<List<Session>> {
         TODO("Not yet implemented")
     }
 
-    override fun getTotalDurationBySubjectId(subjectId: Int): Flow<Long> {
-        TODO("Not yet implemented")
+    override fun getTotalSessionDuration(): Flow<Long> {
+        return sessionDao.getTotalSessionDuration()
     }
 
-    override fun getTotalDurationBySubjectId(): Flow<Long> {
-        TODO("Not yet implemented")
+    override fun getTotalSessionDurationBySubjectId(subjectId: Int): Flow<Long> {
+        return sessionDao.getTotalDurationBySubjectId(subjectId)
     }
 
     override suspend fun deleteSessionBySubjectId(subjectId: Int) {

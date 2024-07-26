@@ -41,7 +41,8 @@ fun SubjectCard(
 
             Text(text = subjectName,
                 style = MaterialTheme.typography.headlineMedium,
-                color = Color.White,)
+                color = Color.White,
+                maxLines = 1)
         }
     }
 }

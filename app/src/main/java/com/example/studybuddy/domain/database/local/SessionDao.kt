@@ -1,11 +1,13 @@
 package com.example.studybuddy.domain.database.local
 
+import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import com.example.studybuddy.domain.model.Session
 import kotlinx.coroutines.flow.Flow
 
+@Dao
 interface SessionDao {
 
 
@@ -21,7 +23,10 @@ interface SessionDao {
 
 
     @Query("SELECT * FROM session WHERE sessionSubjectId = :subjectId")
-    suspend fun getSessionBySubjectId(subjectId: Int): Flow<List<Session>>
+    fun getSessionBySubjectId(subjectId: Int): Flow<List<Session>>
+
+    @Query("SELECT SUM(duration) FROM Session")
+    fun getTotalSessionDuration(): Flow<Long>
 
 
     @Query("SELECT SUM (duration) FROM session WHERE sessionSubjectId = :subjectId")

@@ -38,6 +38,10 @@ fun LazyListScope.StudySessionList(
                     style = MaterialTheme.typography.bodySmall
                 )
 
+                Text(text = "See All",
+                    modifier = Modifier.padding(12.dp),
+                    style = MaterialTheme.typography.bodySmall)
+
             }
         }
     }
