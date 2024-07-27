@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.studybuddy.R
 import com.example.studybuddy.domain.model.Session
+import com.example.studybuddy.utils.changeMillisToDateString
 
 fun LazyListScope.StudySessionList(
     sectionTitle: String,
@@ -104,7 +105,7 @@ private fun SessionCard(
                         style = MaterialTheme.typography.titleMedium
                     )
                     Text(
-                        text = "${session.date}",
+                        text = session.date.changeMillisToDateString(),
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
@@ -127,8 +128,13 @@ private fun SessionCard(
 }
 
 // Function to format duration in hours and minutes
-fun formatDuration(durationMillis: Long): String {
-    val hours = durationMillis / (1000 * 60 * 60)
-    val minutes = (durationMillis % (1000 * 60 * 60)) / (1000 * 60)
-    return "${hours}h ${minutes}m"
+fun formatDuration(durationSeconds: Long): String {
+    if (durationSeconds < 0) return "Invalid duration"
+
+    val hours = durationSeconds / 3600
+    val minutes = (durationSeconds % 3600) / 60
+    val seconds = durationSeconds % 60
+
+    return String.format("%02dh %02dm %02ds", hours, minutes, seconds)
 }
+

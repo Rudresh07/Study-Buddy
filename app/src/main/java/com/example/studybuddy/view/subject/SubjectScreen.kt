@@ -43,13 +43,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.studybuddy.domain.model.Subject
-import com.example.studybuddy.sessions
-import com.example.studybuddy.taskitems
 import com.example.studybuddy.utils.SnackbarEvent
 import com.example.studybuddy.view.components.AddSubjectDialog
 import com.example.studybuddy.view.components.CountCards
@@ -128,6 +124,10 @@ private fun SubjectScreen(
         }
     }
 
+    LaunchedEffect(key1 = state.studiedHours, key2 = state.goalStudyHours) {
+        onEvent(SubjectEvent.UpdateProgress)
+    }
+
 
     AddSubjectDialog(
         subjectName = state.subjectName,
@@ -202,7 +202,7 @@ private fun SubjectScreen(
                         .padding(12.dp),
                     studiedHours = state.studiedHours.toString(),
                     goalHours = state.goalStudyHours,
-                    progress = 0.50f
+                    progress =state.progress
                 )
             }
             TaskList(sectionTitle ="UPCOMING TASKS" ,

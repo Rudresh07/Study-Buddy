@@ -10,10 +10,8 @@ import com.example.studybuddy.domain.model.Task
 import com.example.studybuddy.domain.model.repository.SessionRepository
 import com.example.studybuddy.domain.model.repository.SubjectRepository
 import com.example.studybuddy.domain.model.repository.TaskRepository
-import com.example.studybuddy.taskitems
 import com.example.studybuddy.utils.SnackbarEvent
 import com.example.studybuddy.utils.toHours
-import com.example.studybuddy.view.dashboard.dashboardVariable
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -78,7 +76,7 @@ class DashboardViewModel @Inject constructor(
 
     fun onEvent(event: DashboardEvent){
         when(event){
-            DashboardEvent.DeleteSession -> TODO()
+            DashboardEvent.DeleteSession -> deleteSession()
             is DashboardEvent.OnDeleteSessionButtonClicked -> {
                 _state.update {
                     it.copy(session = event.session)
@@ -166,6 +164,25 @@ class DashboardViewModel @Inject constructor(
               )
           }
        }
+    }
+
+    private fun deleteSession() {
+        viewModelScope.launch {
+            try {
+                state.value.session?.let {
+                    sessionRepository.deleteSession(it)
+                }
+                _snackbarEventFlow.emit(
+                    SnackbarEvent.ShowSnackbar(
+                        "Session deleted successfully"))
+            }
+            catch (e:Exception)
+            {
+                _snackbarEventFlow.emit(
+                    SnackbarEvent.ShowSnackbar(
+                        "Failed to delete Session ${e.message}", SnackbarDuration.Long))
+            }
+        }
     }
 
 

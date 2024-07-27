@@ -50,4 +50,8 @@ sealed class SnackbarEvent{
     ):SnackbarEvent()
 
     data object NavigateUp:SnackbarEvent()
+
+    fun Int.TimeToString():String{
+        return this.toString().padStart(length = 2, padChar = '0')
+    }
 }

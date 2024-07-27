@@ -182,7 +182,8 @@ private fun DashboardScreen(
                 Button(onClick = onStartSessionButtonClick,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 48.dp, vertical = 20.dp)
+                        .padding(horizontal = 48.dp, vertical = 20.dp),
+                    enabled = state.subjects.isNotEmpty()
                 ) {
                     Text(text = "Start Study Session")
                 }
@@ -198,7 +199,7 @@ private fun DashboardScreen(
             }
 
             StudySessionList(sectionTitle ="RECENT STUDY SESSION" ,
-                Sessions = sessions ,
+                Sessions = session ,
                 emptyListText ="You don't have any recent study session.\n Start a study session to begin your progress.",
                 onDeleteItemClick = {onEvent.invoke(DashboardEvent.OnDeleteSessionButtonClicked(it))
                     isDeleteDialogOpen=true}

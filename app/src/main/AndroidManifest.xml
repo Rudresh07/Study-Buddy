@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
     <application
         android:name=".StudyBuddyApp"
         android:allowBackup="true"
@@ -26,6 +30,7 @@
         </activity>
 
         <service android:name=".view.session.StudySessionTimerService"
+            android:foregroundServiceType="specialUse"
             android:exported="false"/>
     </application>
 

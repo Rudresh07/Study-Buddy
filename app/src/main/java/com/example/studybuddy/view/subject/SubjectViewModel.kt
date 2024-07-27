@@ -73,10 +73,12 @@ private val _state = MutableStateFlow(subjectState())
     fun onEvent(event: SubjectEvent)
     {
         when(event){
-            SubjectEvent.DeleteSession -> {}
+            SubjectEvent.DeleteSession -> deleteSession()
             SubjectEvent.DeleteSubject -> deleteSubject()
             is SubjectEvent.OnDeleteSessionButtonClicked -> {
-                //to implement
+                _state.update {
+                    it.copy(session = event.session)
+                }
             }
             is SubjectEvent.OnGoalStudyHoursChange -> {
                 _state.update {
@@ -217,6 +219,24 @@ private val _state = MutableStateFlow(subjectState())
                 )
             }
 
+        }
+    }
+    private fun deleteSession() {
+        viewModelScope.launch {
+            try {
+                state.value.session?.let {
+                    sessionRepository.deleteSession(it)
+                }
+                _snackbarEventFlow.emit(
+                    SnackbarEvent.ShowSnackbar(
+                        "Session deleted successfully"))
+            }
+            catch (e:Exception)
+            {
+                _snackbarEventFlow.emit(
+                    SnackbarEvent.ShowSnackbar(
+                        "Failed to delete Session ${e.message}", SnackbarDuration.Long))
+            }
         }
     }
 
