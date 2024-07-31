@@ -1,5 +1,13 @@
 package com.example.studybuddy.view.task
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.app.TimePickerDialog
+import android.content.Context
+import android.content.Intent
+import android.icu.util.Calendar
+import android.widget.TimePicker
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -33,6 +41,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -43,13 +52,21 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.studybuddy.R
 import com.example.studybuddy.utils.Priority
 import com.example.studybuddy.utils.SnackbarEvent
 import com.example.studybuddy.utils.changeMillisToDateString
+import com.example.studybuddy.utils.millisToTimeString
+import com.example.studybuddy.view.components.CustomToggleButton
 import com.example.studybuddy.view.components.DeleteDialog
 import com.example.studybuddy.view.components.SubjectListDropDown
 import com.example.studybuddy.view.components.TaskCheckBox
@@ -94,6 +111,7 @@ private fun TaskScreen(
 )
 {
 
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var isSubjectDropDownOpen by rememberSaveable { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
@@ -103,8 +121,30 @@ private fun TaskScreen(
     var taskTitleError by remember{mutableStateOf<String?>(null)}
     var subjectTitle by remember { mutableStateOf("") }
     val snackbarHostState = remember{ SnackbarHostState() }
+    var isTaskTimePickerOpen by rememberSaveable { mutableStateOf(false) }
+    val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+    val minute = Calendar.getInstance().get(Calendar.MINUTE)
+    var timeInMillis by remember { mutableStateOf(Calendar.getInstance().timeInMillis) }
 
+    var selectedTime by remember { mutableStateOf("$hour:$minute") }
+    var isAlarmSet by remember { mutableStateOf(false) }
 
+    if (isTaskTimePickerOpen) {
+        TimePickerDialog(
+            context,
+            { _: TimePicker, selectedHour: Int, selectedMinute: Int ->
+                val calendar = Calendar.getInstance().apply {
+                    set(Calendar.HOUR_OF_DAY, selectedHour)
+                    set(Calendar.MINUTE, selectedMinute)
+                }
+                onEvent(TaskEvent.OnTimeChanged(calendar.timeInMillis))
+                isTaskTimePickerOpen = false
+            },
+            hour,
+            minute,
+            false
+        ).show()
+    }
     LaunchedEffect(key1 = true) {
         snackbarEvent.collectLatest { event ->
             when (event) {
@@ -146,6 +186,8 @@ private fun TaskScreen(
             onEvent(TaskEvent.OnDateChanged(millis=datePickerState.selectedDateMillis))
             isTaskDatePickerOpen = false }
     )
+
+
 
     SubjectListDropDown(
         sheetState =sheetState ,
@@ -228,6 +270,54 @@ private fun TaskScreen(
 
         }
 
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Text(text = "Due Time",
+            style = MaterialTheme.typography.bodySmall
+        )
+        Row(modifier = Modifier
+            .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Text(text = millisToTimeString(state.dueTime),
+                style = MaterialTheme.typography.bodyLarge
+            )
+            IconButton(onClick = { isTaskTimePickerOpen = true }) {
+                Icon(painter = painterResource(id = R.drawable.baseline_add_alarm_24),
+                    contentDescription ="Select Due Time" )
+
+            }
+
+        }
+
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Text(text = "Set Alarm",
+            style = MaterialTheme.typography.bodySmall
+        )
+        Row(modifier = Modifier
+            .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Text(text = "Do you want to set alarm",
+                style = MaterialTheme.typography.bodyLarge
+            )
+            CustomToggleButton(
+                checked = state.isReminderSet,
+                onCheckedClick = {
+                    onEvent(TaskEvent.onSetReminderchanged(it))
+                    isAlarmSet = state.isReminderSet
+                }
+            )
+
+        }
+
+
         Spacer(modifier = Modifier.height(10.dp))
 
         Text(text = "Priority",
@@ -236,7 +326,7 @@ private fun TaskScreen(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(5.dp)),) {
             Priority.entries.forEach{
                 PriorityButton(
                     modifier = Modifier.weight(1f),
@@ -280,7 +370,15 @@ private fun TaskScreen(
 
         Button(
             enabled = taskTitleError==null,
-            onClick = { onEvent(TaskEvent.SaveTask) },
+            onClick = {
+                      if (state.isReminderSet){
+                          setAlarm(context,state.dueTime!!,state.title,state.currentTaskId!!)
+                      }
+                else{
+                    cancelAlarm(context,state.currentTaskId!!)
+                      }
+                onEvent(TaskEvent.SaveTask)
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 12.dp)
@@ -358,4 +456,27 @@ private fun PriorityButton(
     }
 
 }
+
+
+private fun setAlarm(context: Context, timeInMillis: Long,taskTitle:String,taskId:Int)
+{
+    val timeSec = timeInMillis- (5*60*1000)
+
+    Toast.makeText(context,"Alarm set",Toast.LENGTH_SHORT).show()
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    val intent = Intent(context,AlarmReceiver::class.java).apply {
+        putExtra("taskTitle",taskTitle)
+    }
+    val pendingIntent = PendingIntent.getBroadcast(context, taskId, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+
+    alarmManager.set(AlarmManager.RTC_WAKEUP, timeSec, pendingIntent)
+}
+
+private fun cancelAlarm(context: Context, taskId: Int) {
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    val intent = Intent(context, AlarmReceiver::class.java)
+    val pendingIntent = PendingIntent.getBroadcast(context, taskId, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+    alarmManager.cancel(pendingIntent)
+}
+
 

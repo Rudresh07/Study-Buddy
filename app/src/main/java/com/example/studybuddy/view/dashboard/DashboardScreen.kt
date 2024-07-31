@@ -46,7 +46,6 @@ import com.example.studybuddy.R
 import com.example.studybuddy.domain.model.Session
 import com.example.studybuddy.domain.model.Subject
 import com.example.studybuddy.domain.model.Task
-import com.example.studybuddy.sessions
 import com.example.studybuddy.utils.SnackbarEvent
 import com.example.studybuddy.view.components.AddSubjectDialog
 import com.example.studybuddy.view.components.CountCards

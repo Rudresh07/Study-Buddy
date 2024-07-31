@@ -97,43 +97,4 @@ class MainActivity : ComponentActivity() {
 
 
 
-val sessions = listOf(
-    Session(
-        sessionSubjectId = 1,
-        sessionId = 1,
-        date = System.currentTimeMillis() + 86400000L, // 1 day from now
-        duration = 3600000L, // 1 hour
-        relatedToSubject = "Math"
-    ),
-    Session(
-        sessionSubjectId = 2,
-        sessionId = 2,
-        date = System.currentTimeMillis() + 2 * 86400000L, // 2 days from now
-        duration = 7200000L, // 2 hours
-        relatedToSubject = "Science"
-    ),
-    Session(
-        sessionSubjectId = 3,
-        sessionId = 3,
-        date = System.currentTimeMillis() + 3 * 86400000L, // 3 days from now
-        duration = 5400000L, // 1.5 hours
-        relatedToSubject = "History"
-    ),
-    Session(
-        sessionSubjectId = 4,
-        sessionId = 4,
-        date = System.currentTimeMillis() + 4 * 86400000L, // 4 days from now
-        duration = 1800000L, // 30 minutes
-        relatedToSubject = "English"
-    ),
-    Session(
-        sessionSubjectId = 5,
-        sessionId = 5,
-        date = System.currentTimeMillis() + 5 * 86400000L, // 5 days from now
-        duration = 14400000L, // 4 hours
-        relatedToSubject = "Art"
-    )
-)
-
-
 

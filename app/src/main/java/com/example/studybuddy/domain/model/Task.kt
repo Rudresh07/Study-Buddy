@@ -9,6 +9,8 @@ data class Task(
     val title: String,
     val description: String,
     val dueDate:Long,
+    val dueTime:Long,
+    val setReminder:Boolean,
     val priority:Int,
     val relatedToSubject:String,
     val isCompleted:Boolean,

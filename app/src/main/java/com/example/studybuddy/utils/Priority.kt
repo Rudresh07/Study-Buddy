@@ -5,9 +5,12 @@ import androidx.compose.ui.graphics.Color.Companion.Yellow
 import com.example.studybuddy.ui.theme.Green
 import com.example.studybuddy.ui.theme.Orange
 import com.example.studybuddy.ui.theme.Red
+import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.Date
+import java.util.Locale
 
 enum class Priority(val title: String, val color:androidx.compose.ui.graphics.Color, val value: Int) {
     LOW(title = "Low", color = Green, value = 1),
@@ -34,6 +37,14 @@ fun Long?.changeMillisToDateString():String{
 
     return date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
 }
+
+fun millisToTimeString(millis: Long?, pattern: String = "hh:mm a"): String {
+    return millis?.let {
+        val formatter = SimpleDateFormat(pattern, Locale.getDefault())
+        formatter.format(Date(it))
+    } ?: "No Time Set"
+}
+
 
 
 fun Long.toHours():Float{

@@ -90,6 +90,17 @@ private val taskRepository: TaskRepository,
                 }
             }
             TaskEvent.SaveTask -> saveTask()
+            is TaskEvent.OnTimeChanged -> {
+                _state.update {
+                    it.copy(dueTime = event.timeInMillis)
+                }
+            }
+
+            is TaskEvent.onSetReminderchanged-> {
+                _state.value = state.value.copy(isReminderSet = event.setReminder)
+            }
+
+            else -> {}
         }
     }
 
@@ -118,7 +129,9 @@ private val taskRepository: TaskRepository,
                             priority = state.value.priority.value,
                             relatedToSubject = state.value.relatedToSubject!!,
                             taskSubjectId = state.value.subjectId!!,
-                            TaskId = state.value.currentTaskId
+                            TaskId = state.value.currentTaskId,
+                            dueTime = state.value.dueTime?:Instant.now().toEpochMilli(),
+                            setReminder = state.value.isReminderSet
                         )
                     )
                     _snackbarEventFlow.emit(
@@ -186,7 +199,9 @@ private val taskRepository: TaskRepository,
                 priority = Priority.fromInt(task.priority),
                 relatedToSubject = task.relatedToSubject,
                 currentTaskId = task.TaskId,
-                subjectId = task.taskSubjectId
+                subjectId = task.taskSubjectId,
+                dueTime = task.dueTime,
+                isReminderSet = task.setReminder
             )
           }
         }

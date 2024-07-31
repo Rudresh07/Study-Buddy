@@ -10,6 +10,10 @@ sealed class TaskEvent {
 
     data class OnDateChanged(val millis: Long?) : TaskEvent()
 
+    data class OnTimeChanged(val timeInMillis: Long?) : TaskEvent()
+
+    data class onSetReminderchanged(val setReminder: Boolean):TaskEvent()
+
     data class OnPriorityChanged(val priority: Priority) : TaskEvent()
 
     data class OnRelatedSubjectSelect(val subject: Subject) : TaskEvent()
