@@ -372,7 +372,7 @@ private fun TaskScreen(
             enabled = taskTitleError==null,
             onClick = {
                       if (state.isReminderSet){
-                          setAlarm(context,state.dueTime!!,state.title,state.currentTaskId!!)
+                          setAlarm(context,state.dueDate!!,state.dueTime!!,state.title,state.currentTaskId!!)
                       }
                 else{
                     cancelAlarm(context,state.currentTaskId!!)
@@ -458,9 +458,10 @@ private fun PriorityButton(
 }
 
 
-private fun setAlarm(context: Context, timeInMillis: Long,taskTitle:String,taskId:Int)
+private fun setAlarm(context: Context,dueDate:Long, timeInMillis: Long,taskTitle:String,taskId:Int)
 {
-    val timeSec = timeInMillis- (5*60*1000)
+    val timeSec = dueDate+timeInMillis- (5*60*1000)
+
 
     Toast.makeText(context,"Alarm set",Toast.LENGTH_SHORT).show()
     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
