@@ -458,19 +458,27 @@ private fun PriorityButton(
 }
 
 
-private fun setAlarm(context: Context,dueDate:Long, timeInMillis: Long,taskTitle:String,taskId:Int)
-{
-    val timeSec = dueDate+timeInMillis- (5*60*1000)
+private fun setAlarm(context: Context, dueDate: Long, dueTime: Long, taskTitle: String, taskId: Int) {
+    val calendar = Calendar.getInstance().apply {
+        timeInMillis = dueDate
+        val dueTimeCalendar = Calendar.getInstance().apply {
+            timeInMillis = dueTime
+        }
+        set(Calendar.HOUR_OF_DAY, dueTimeCalendar.get(Calendar.HOUR_OF_DAY))
+        set(Calendar.MINUTE, dueTimeCalendar.get(Calendar.MINUTE))
+        set(Calendar.SECOND, 0)
+    }
 
+    val timeInMillis = calendar.timeInMillis - (5 * 60 * 1000) // Set alarm 5 minutes before the due date and time
 
-    Toast.makeText(context,"Alarm set",Toast.LENGTH_SHORT).show()
+    Toast.makeText(context, "Alarm set for $timeInMillis", Toast.LENGTH_SHORT).show()
     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-    val intent = Intent(context,AlarmReceiver::class.java).apply {
-        putExtra("taskTitle",taskTitle)
+    val intent = Intent(context, AlarmReceiver::class.java).apply {
+        putExtra("taskTitle", taskTitle)
     }
     val pendingIntent = PendingIntent.getBroadcast(context, taskId, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
-    alarmManager.set(AlarmManager.RTC_WAKEUP, timeSec, pendingIntent)
+    alarmManager.set(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent)
 }
 
 private fun cancelAlarm(context: Context, taskId: Int) {
