@@ -62,9 +62,11 @@ val inverseOnSurfaceDark = Color(0xFF2F3036)
 val inversePrimaryDark = Color(0xFF455E91)
 
 val Red = Color(0xFFD53A2F)
-val Blue = Color(0xFF2965C9)
+val BlueText = Color(0xFF455E91)
 val Green = Color(0xFF1E9651)
 val Orange = Color(0xFFFF9800)
+val grey = Color(0xFFECF3F9)
+val buttonColor = Color(0xFF006782)
 
 val gradient1 = listOf(Color(0xFFad5389), Color(0xFF3c1053))
 val gradient2 = listOf(Color(0xFF3a6073), Color(0xFF16222a))

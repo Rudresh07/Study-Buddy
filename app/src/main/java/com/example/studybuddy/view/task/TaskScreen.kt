@@ -41,7 +41,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -54,10 +53,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -124,9 +121,6 @@ private fun TaskScreen(
     var isTaskTimePickerOpen by rememberSaveable { mutableStateOf(false) }
     val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
     val minute = Calendar.getInstance().get(Calendar.MINUTE)
-    var timeInMillis by remember { mutableStateOf(Calendar.getInstance().timeInMillis) }
-
-    var selectedTime by remember { mutableStateOf("$hour:$minute") }
     var isAlarmSet by remember { mutableStateOf(false) }
 
     if (isTaskTimePickerOpen) {
@@ -458,7 +452,7 @@ private fun PriorityButton(
 }
 
 
-private fun setAlarm(context: Context, dueDate: Long, dueTime: Long, taskTitle: String, taskId: Int) {
+fun setAlarm(context: Context, dueDate: Long, dueTime: Long, taskTitle: String, taskId: Int) {
     val calendar = Calendar.getInstance().apply {
         timeInMillis = dueDate
         val dueTimeCalendar = Calendar.getInstance().apply {

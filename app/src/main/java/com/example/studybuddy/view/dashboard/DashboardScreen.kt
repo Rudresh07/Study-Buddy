@@ -1,5 +1,6 @@
 package com.example.studybuddy.view.dashboard
 
+import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -58,12 +59,17 @@ import com.example.studybuddy.view.destinations.SubjectScreenRouteDestination
 import com.example.studybuddy.view.destinations.TaskScreenRouteDestination
 import com.example.studybuddy.view.subject.SubjectScreenNavArgs
 import com.example.studybuddy.view.task.TaskScreenNavArgs
+import com.ramcosta.composedestinations.annotation.DeepLink
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 
-@Destination(start = true)
+@Destination(
+    deepLinks = [
+        DeepLink(action = Intent.ACTION_VIEW, uriPattern = "study_buddy://dashboard")
+    ]
+)
 @Composable
 fun DashBoardScreenRoute(
     navigator: DestinationsNavigator
@@ -316,5 +322,8 @@ private fun SubjectCardSection(
             }
         }
     }
+
+
+
 
 

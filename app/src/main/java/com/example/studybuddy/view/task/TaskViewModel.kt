@@ -70,7 +70,8 @@ private val taskRepository: TaskRepository,
             }
             TaskEvent.OnIsCompletedChanged -> {
                 _state.update {
-                    it.copy(isTaskComplete = !_state.value.isTaskComplete)
+                    it.copy(isTaskComplete = !_state.value.isTaskComplete,
+                        isReminderSet = !_state.value.isReminderSet)
                 }
             }
             is TaskEvent.OnPriorityChanged -> {
