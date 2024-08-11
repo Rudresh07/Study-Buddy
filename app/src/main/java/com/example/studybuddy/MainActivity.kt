@@ -9,22 +9,11 @@ import android.os.IBinder
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
-import com.example.studybuddy.domain.model.Session
-import com.example.studybuddy.domain.model.Subject
-import com.example.studybuddy.domain.model.Task
 import com.example.studybuddy.ui.theme.StudyBuddyTheme
-import com.example.studybuddy.ui.theme.gradient1
-import com.example.studybuddy.ui.theme.gradient2
-import com.example.studybuddy.ui.theme.gradient3
-import com.example.studybuddy.ui.theme.gradient4
-import com.example.studybuddy.ui.theme.gradient5
 import com.example.studybuddy.view.NavGraphs
 import com.example.studybuddy.view.destinations.SessionScreenRouteDestination
 import com.example.studybuddy.view.session.StudySessionTimerService
@@ -61,6 +50,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+
+
+
             if (isBound) {
                 StudyBuddyTheme {
                     DestinationsNavHost(navGraph = NavGraphs.root,
@@ -94,6 +86,7 @@ class MainActivity : ComponentActivity() {
     }
 
     }
+
 
 
 

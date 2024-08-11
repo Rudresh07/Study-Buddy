@@ -18,12 +18,15 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -40,10 +43,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.studybuddy.R
+import com.example.studybuddy.domain.model.BottomNavigationItem
 import com.example.studybuddy.domain.model.Session
 import com.example.studybuddy.domain.model.Subject
 import com.example.studybuddy.domain.model.Task
@@ -231,6 +236,13 @@ fun DashboardTopBar(){
 }
 
 @Composable
+fun BottomAppBar(){
+   NavigationBar {
+
+   }
+}
+
+@Composable
 private fun CountCardSection(
     modifier: Modifier,
     subjectCount: Int,
@@ -324,6 +336,10 @@ private fun SubjectCardSection(
     }
 
 
-
+@Preview
+@Composable
+fun BottomAppBarPreview() {
+    BottomAppBar()
+}
 
 
