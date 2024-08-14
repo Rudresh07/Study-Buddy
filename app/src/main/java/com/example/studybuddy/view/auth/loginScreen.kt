@@ -68,7 +68,7 @@ fun LoginScreenRoute(
     LoginScreen(
         viewModel = viewModel,
         onLoginSuccess = {
-          navigator.navigate(MainScreenRouteDestination)
+          navigator.navigate(MainScreenRouteDestination(0))
                          },
         signupisclicked = {
             navigator.navigate(SignupScreenRouteDestination)
@@ -151,7 +151,8 @@ val authState by viewModel.authState.observeAsState()
                         containerColor = grey,
                         unfocusedIndicatorColor = Color.Transparent,
                         focusedIndicatorColor = Color.Transparent
-                    )
+                    ),
+                    singleLine = true,
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -173,6 +174,7 @@ val authState by viewModel.authState.observeAsState()
                         unfocusedIndicatorColor = Color.Transparent,
                         focusedIndicatorColor = Color.Transparent
                     ),
+                    singleLine = true,
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
                         val icon = if (passwordVisible)

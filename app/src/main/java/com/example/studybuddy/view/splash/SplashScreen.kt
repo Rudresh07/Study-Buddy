@@ -42,7 +42,7 @@ fun SplashScreen(
         val isLoggedIn = FirebaseAuth.getInstance().currentUser != null
 
         if (isLoggedIn) {
-            navigator.navigate(MainScreenRouteDestination) {
+            navigator.navigate(MainScreenRouteDestination(0)) {
                 popUpTo(SplashScreenDestination) { inclusive = true }
             }
         } else {

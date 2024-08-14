@@ -1,7 +1,7 @@
 package com.example.studybuddy.utils
 
+import android.util.Log
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.ui.graphics.Color.Companion.Yellow
 import com.example.studybuddy.ui.theme.Green
 import com.example.studybuddy.ui.theme.Orange
 import com.example.studybuddy.ui.theme.Red
@@ -54,6 +54,8 @@ fun Long.toHours():Float{
 }
 
 
+
+
 sealed class SnackbarEvent{
     data class ShowSnackbar(
         val message:String,
@@ -65,4 +67,12 @@ sealed class SnackbarEvent{
     fun Int.TimeToString():String{
         return this.toString().padStart(length = 2, padChar = '0')
     }
+}
+
+fun handleException(tag: String, message: String, exception: Exception?) {
+    // Log the error
+    Log.e(tag, message, exception)
+
+    // Optionally, you can show a snackbar or toast
+    SnackbarEvent.ShowSnackbar("Error: ${exception?.localizedMessage ?: "Unknown error"}")
 }

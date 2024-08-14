@@ -64,6 +64,7 @@ import com.example.studybuddy.ui.theme.buttonColor
 import com.example.studybuddy.ui.theme.grey
 import com.example.studybuddy.view.components.CircularProgressBar
 import com.example.studybuddy.view.components.MembershipPurchaseScreen
+import com.example.studybuddy.view.destinations.ChatScreenRouteDestination
 import com.ramcosta.composedestinations.annotation.DeepLink
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -83,24 +84,23 @@ fun ChatListScreen(navigator: DestinationsNavigator) {
     var isSubscribed by remember { mutableStateOf(true) }
     val inProgress = vm.isLoading
     val showDialog = remember { mutableStateOf(false) }
-    val context:Context = LocalContext.current
+    val context: Context = LocalContext.current
     val userData = vm.userData.value
-
 
     Log.d("ChatListScreen", "userData: $userData")
     Log.d("ChatListScreen", "current time: ${System.currentTimeMillis()}")
-    // Check subscription status here
-        LaunchedEffect(Unit) {
-            userData?.let {
-                if (it.PremiumMember == true && it.expiry!! > System.currentTimeMillis()) {
-                    isSubscribed = true
-                    Log.d("ChatListScreen", "User is subscribed: $userData")
-                } else {
-                    isSubscribed = false
-                    Log.d("ChatListScreen", "User is not subscribed or subscription expired: $userData")
-                }
+
+    LaunchedEffect(Unit) {
+        userData?.let {
+            if (it.PremiumMember == true && it.expiry!! > System.currentTimeMillis()) {
+                isSubscribed = true
+                Log.d("ChatListScreen", "User is subscribed: $userData")
+            } else {
+                isSubscribed = false
+                Log.d("ChatListScreen", "User is not subscribed or subscription expired: $userData")
             }
         }
+    }
 
     if (inProgress.value) {
         CircularProgressBar()
@@ -114,12 +114,15 @@ fun ChatListScreen(navigator: DestinationsNavigator) {
             onAddChat = {
                 vm.onAddChat(it)
                 showDialog.value = false
-                Toast.makeText(context, "connection made request", Toast.LENGTH_SHORT).show()
-            }, context = context,
-            userData = userData!!
+                Toast.makeText(context, "Connection made request", Toast.LENGTH_SHORT).show()
+            },
+            context = context,
+            userData = userData!!,
+            navigator = navigator  // Pass navigator to ChatScreenContent
         )
     }
 }
+
 
 @Composable
 fun ChatScreenContent(
@@ -130,7 +133,8 @@ fun ChatScreenContent(
     onDismiss: () -> Unit,
     onAddChat: (String) -> Unit,
     context: Context,
-    userData: UserData
+    userData: UserData,
+    navigator: DestinationsNavigator // Add navigator parameter
 ) {
     if (isSubscribed) {
         Scaffold(
@@ -177,9 +181,14 @@ fun ChatScreenContent(
                                 chat.user1
                             }
 
-                            CommonRow(name = chatUser.name) {
-                                Toast.makeText(context, "Clicked ${chatUser.name}", Toast.LENGTH_SHORT).show()
-                            }
+                            CommonRow(
+                                name = chatUser.name,
+                                navigator = navigator,  // Pass navigator
+                                chatId = chat.chatId,   // Pass chatId
+                                onItemClicked = {
+
+                                }
+                            )
 
                         }
                     }
@@ -200,12 +209,23 @@ fun ChatScreenContent(
 }
 
 @Composable
-fun CommonRow(name: String?, onItemClicked: () -> Unit) {
+fun CommonRow(
+    name: String?,
+    navigator: DestinationsNavigator,
+    chatId: String?,
+    onItemClicked: () -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 5.dp)
-            .clickable { onItemClicked.invoke() },
+            .clickable {
+                onItemClicked.invoke()
+                if (chatId != null) {
+                    navigator.navigate(ChatScreenRouteDestination(chatId))
+
+                }
+            },
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(Color.White),
         shape = RoundedCornerShape(20.dp)
@@ -249,6 +269,7 @@ fun CommonRow(name: String?, onItemClicked: () -> Unit) {
         }
     }
 }
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)

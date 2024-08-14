@@ -62,9 +62,13 @@ import com.example.studybuddy.utils.SnackbarEvent
 import com.example.studybuddy.view.components.DeleteDialog
 import com.example.studybuddy.view.components.StudySessionList
 import com.example.studybuddy.view.components.SubjectListDropDown
+import com.example.studybuddy.view.destinations.MainScreenRouteDestination
+import com.example.studybuddy.view.destinations.SessionScreenRouteDestination
+import com.example.studybuddy.view.destinations.SubjectScreenRouteDestination
 import com.ramcosta.composedestinations.annotation.DeepLink
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.popUpTo
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -90,7 +94,11 @@ fun SessionScreenRoute(
     SessionScreen(
         state =state ,
         onEvent = viewModel::onEvent ,
-        onBackButtonClick = { navigator.navigateUp()},
+        onBackButtonClick = {
+            navigator.navigate(MainScreenRouteDestination(0)) {
+                popUpTo(SessionScreenRouteDestination) { inclusive = true }
+            }
+        },
         snackbarEvent = viewModel.snackbarEventFlow,
         timerService = timerService
     )

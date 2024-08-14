@@ -17,6 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import com.example.studybuddy.R
 import com.example.studybuddy.domain.model.BottomNavigationItem
+import com.example.studybuddy.view.chat.ChatListScreen
+import com.example.studybuddy.view.chat.ChatListViewModel
 import com.example.studybuddy.view.dashboard.DashBoardScreenRoute
 import com.ramcosta.composedestinations.annotation.DeepLink
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -33,53 +35,67 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 @Composable
 fun MainScreenRoute(
     navigator: DestinationsNavigator,
-){
-    MainScreen(modifier = Modifier,navigator)
+    initialSelectedIndex: Int = 0 // Default to 0 (Dashboard)
+) {
+    MainScreen(
+        modifier = Modifier,
+        navigator = navigator,
+        initialSelectedIndex = initialSelectedIndex
+    )
 }
+
 @Composable
-fun MainScreen(modifier: Modifier = Modifier,navigator: DestinationsNavigator)
-{
-    val NavigationItem = listOf(
+fun MainScreen(
+    modifier: Modifier = Modifier,
+    navigator: DestinationsNavigator,
+    initialSelectedIndex: Int
+) {
+    val navigationItems = listOf(
         BottomNavigationItem(
             title = "Dashboard",
             selectedIcon = R.drawable.homefilled,
             unselectedIcon = R.drawable.homeoutlined,
-            hasNews = false),
-
+            hasNews = false
+        ),
         BottomNavigationItem(
             title = "Chats",
             selectedIcon = R.drawable.chatfilled,
             unselectedIcon = R.drawable.chatoutlined,
-            hasNews = false),
-
+            hasNews = false
+        ),
         BottomNavigationItem(
             title = "Calls",
             selectedIcon = R.drawable.videocallfill,
             unselectedIcon = R.drawable.videocalloutline,
-            hasNews = false),
-
+            hasNews = false
+        ),
         BottomNavigationItem(
             title = "Doubts",
             selectedIcon = R.drawable.questionfill,
             unselectedIcon = R.drawable.questionoutline,
-            hasNews = false),
+            hasNews = false
+        )
     )
 
-    var selectedIndex by remember { mutableStateOf(0) }
+    var selectedIndex by remember { mutableStateOf(initialSelectedIndex) }
 
     Scaffold(
         bottomBar = {
             BottomNavigationBar(
-                items = NavigationItem ,
+                items = navigationItems,
                 selectedIndex = selectedIndex,
                 onItemSelected = { selectedIndex = it }
             )
         }
-    ){
-        paddingValues ->
-        ContentScreen(navigator,modifier = Modifier.padding(paddingValues),selectedIndex,)
+    ) { paddingValues ->
+        ContentScreen(
+            navigator = navigator,
+            modifier = Modifier.padding(paddingValues),
+            selectedIndex = selectedIndex
+        )
     }
 }
+
 
 @Composable
 fun BottomNavigationBar(items: List<BottomNavigationItem>, selectedIndex: Int, onItemSelected: (Int) -> Unit) {
@@ -106,7 +122,7 @@ fun ContentScreen(navigator: DestinationsNavigator,modifier: Modifier = Modifier
 {
     when (selectedIndex) {
         0 -> DashBoardScreenRoute(navigator)
-        1 -> Text("Chats Screen", modifier = modifier.fillMaxSize())
+        1 -> ChatListScreen(navigator)
         2 -> Text("Calls Screen", modifier = modifier.fillMaxSize())
         3 -> Text("Doubts Screen", modifier = modifier.fillMaxSize())
     }

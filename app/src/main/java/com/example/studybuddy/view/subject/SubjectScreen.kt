@@ -52,10 +52,13 @@ import com.example.studybuddy.view.components.CountCards
 import com.example.studybuddy.view.components.DeleteDialog
 import com.example.studybuddy.view.components.StudySessionList
 import com.example.studybuddy.view.components.TaskList
+import com.example.studybuddy.view.destinations.MainScreenRouteDestination
+import com.example.studybuddy.view.destinations.SubjectScreenRouteDestination
 import com.example.studybuddy.view.destinations.TaskScreenRouteDestination
 import com.example.studybuddy.view.task.TaskScreenNavArgs
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.popUpTo
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 
@@ -76,7 +79,11 @@ fun SubjectScreenRoute(
         state =state ,
         onEvent =viewModel::onEvent,
         snackbarEvent = viewModel.snackbarEventFlow,
-        onBackButtonClicked = { navigator.navigateUp() },
+        onBackButtonClicked = {
+            navigator.navigate(MainScreenRouteDestination(0)) {
+                popUpTo(SubjectScreenRouteDestination) { inclusive = true }
+            }
+        },
         onAddTaskButtonClick = {
             val navArgs = TaskScreenNavArgs(taskId = null, subjectId = state.currentSubjectId)
             navigator.navigate(TaskScreenRouteDestination(navArgs = navArgs))

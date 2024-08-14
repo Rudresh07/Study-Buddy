@@ -65,7 +65,7 @@ val Red = Color(0xFFD53A2F)
 val BlueText = Color(0xFF455E91)
 val Green = Color(0xFF1E9651)
 val Orange = Color(0xFFFF9800)
-val grey = Color(0xFFECF3F9)
+val grey = Color(0xFFEBF5FF)
 val buttonColor = Color(0xFF006782)
 
 val gradient1 = listOf(Color(0xFFad5389), Color(0xFF3c1053))
