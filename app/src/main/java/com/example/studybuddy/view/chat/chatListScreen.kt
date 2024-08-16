@@ -106,7 +106,7 @@ fun ChatListScreen(navigator: DestinationsNavigator) {
         CircularProgressBar()
     } else {
         ChatScreenContent(
-            isSubscribed = isSubscribed,
+            isSubscribed = true,//isSubscribed,
             chats = vm.chats.value,
             showDialog = showDialog.value,
             onFabClick = { showDialog.value = true },

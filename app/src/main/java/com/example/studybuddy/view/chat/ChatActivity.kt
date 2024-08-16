@@ -1,8 +1,6 @@
 package com.example.studybuddy.view.chat
 
-import android.content.Intent
 import android.util.Log
-import android.widget.Space
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -10,13 +8,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -41,28 +44,24 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.studybuddy.domain.model.Message
 import com.example.studybuddy.ui.theme.buttonColor
 import com.example.studybuddy.ui.theme.grey
 import com.example.studybuddy.view.destinations.ChatScreenRouteDestination
 import com.example.studybuddy.view.destinations.MainScreenRouteDestination
-import com.ramcosta.composedestinations.annotation.DeepLink
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-@Destination(
-    deepLinks = [
-        DeepLink(action = Intent.ACTION_VIEW, uriPattern = "study_buddy://chat_screen/{chatId}")
-    ]
-)
+@Destination
 @Composable
 fun ChatScreenRoute(
     chatId: String,
@@ -72,14 +71,12 @@ fun ChatScreenRoute(
     ChatScreen(
         chatId = chatId,
         onSendMessage = { messageText ->
-            viewModel.onSendMessage(chatId,messageText)
+            viewModel.onSendMessage(chatId, messageText)
         },
         onBackClick = { navigator.navigate(MainScreenRouteDestination(1)) {
             popUpTo(ChatScreenRouteDestination) { inclusive = true }
             viewModel.depopulateMessage()
-        }
-
-        }
+        }}
     )
 }
 
@@ -93,18 +90,16 @@ fun ChatScreen(
     val myUser = vm.userData.value
     val currentChat = vm.chats.value.firstOrNull { it.chatId == chatId }
     val chatUser = if (myUser?.userId == currentChat?.user1?.userId) currentChat?.user2 else currentChat?.user1
-    var messages = vm.chatMessage.value
+    val messages = vm.chatMessage.value
 
+    // Group messages by date
+    val groupedMessages = messages.groupBy { getDateFromDateTime(it.time) }
 
     LaunchedEffect(key1 = chatId) {
-        Log.d("ChatScreen", "LaunchedEffect started for chatId: $chatId")
         vm.getMessages(chatId)
-
     }
 
-
     BackHandler {
-        Log.d("ChatScreen", "Back button pressed")
         vm.depopulateMessage()
         onBackClick()
     }
@@ -116,31 +111,43 @@ fun ChatScreen(
                 onBackClick = onBackClick
             )
         },
-        bottomBar = {
+        modifier = Modifier
+            .fillMaxSize()
+            .windowInsetsPadding(WindowInsets.systemBars)
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .imePadding() // Adjust the entire column when the keyboard appears
+        ) {
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
+                groupedMessages.toList().reversed().forEach { (date, messagesForDate) ->
+                    item {
+                        DateHeader(date)
+                    }
+
+                    items(messagesForDate) { message ->
+                        MessageItem(
+                            message = message,
+                            isUserMe = message.userId == myUser?.userId,
+                            time = convertTimeTo12HourFormat(message.time)
+                        )
+                    }
+                }
+            }
             MessageInput(
                 onSendMessage = { text ->
                     onSendMessage(text)
-                    // Optionally add the new message to the messages list
-                    messages = messages + Message("currentUserId", "now", text)
                 },
+                modifier = Modifier
+                    .navigationBarsPadding()  // Handle navigation bar padding
             )
-        }
-    ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-                .padding(16.dp),
-            reverseLayout = true
-        ) {
-            items(messages) { message ->
-                Log.d("ChatScreen", "Displaying message: ${message.message} from ${message.userId} at ${message.time}")
-                MessageItem(
-                    message = message,
-                    isUserMe = message.userId == myUser?.userId,// Replace with actual userId logic
-                    time = convertTimeTo12HourFormat(message.time)
-                )
-            }
         }
     }
 }
@@ -182,29 +189,23 @@ fun MessageItem(message: Message, isUserMe: Boolean, time: String) {
                 // Message text
                 Text(
                     text = message.message,
+                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp, fontWeight = FontWeight.W500),
                     color = if (isUserMe) Color.White else Color.Black,
                     modifier = Modifier.padding(bottom = 4.dp)  // Space between message and time
                 )
 
-                // Spacer to add space between message and time
-                Spacer(modifier = Modifier.height(4.dp))
 
                 // Time text aligned to the bottom end of the box
                 Text(
                     text = time,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp),
                     color = if (isUserMe) Color.White.copy(alpha = 0.7f) else Color.Black.copy(alpha = 0.7f),
-                    modifier = Modifier
-                        .align(Alignment.End)
+                    modifier = Modifier.align(Alignment.End)
                 )
             }
         }
     }
 }
-
-
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -242,35 +243,56 @@ fun MessageInput(onSendMessage: (String) -> Unit, modifier: Modifier = Modifier)
     }
 }
 
-//fun convertTimeTo12HourFormat(time24: String): String {
-//    val inputFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-//    val outputFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
-//    val date = inputFormat.parse(time24)
-//    return outputFormat.format(date!!)
-//}
-fun convertTimeTo12HourFormat(dateTime: String): String {
-    // Define the input format based on your date and time format
+@Composable
+fun DateHeader(date: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 24.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = date,
+            style = MaterialTheme.typography.bodySmall,
+            color = Color.Black,
+            maxLines = 1,
+            modifier = Modifier
+                .background(grey, shape = RoundedCornerShape(16.dp))
+                .padding(vertical = 8.dp, horizontal = 16.dp)
+                .wrapContentSize()
+        )
+    }
+}
+
+
+// Function to extract just the date (e.g., "Aug 15, 2024") from the dateTime string
+fun getDateFromDateTime(dateTime: String): String {
     val inputFormat = SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH)
-    // Define the output format (12-hour format)
-    val outputFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+    val outputFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
 
     return try {
-        // Parse the input date-time string
         val date: Date = inputFormat.parse(dateTime) ?: return ""
-        // Format the date to the desired 12-hour format
         outputFormat.format(date)
     } catch (e: Exception) {
-        // Log or handle the parsing error
         Log.e("DateConversion", "Error parsing date: ${e.message}")
         ""
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewChatScreen() {
-    ChatScreen(
-        onSendMessage = {},
-        chatId = "chat123"
-    )
+// Function to convert time from 24-hour format to 12-hour format (e.g., "10:30 AM")
+fun convertTimeTo12HourFormat(dateTime: String): String {
+    val inputFormat = SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH)
+    val outputFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+
+    return try {
+        val date: Date = inputFormat.parse(dateTime) ?: return ""
+        outputFormat.format(date)
+    } catch (e: Exception) {
+        Log.e("DateConversion", "Error parsing time: ${e.message}")
+        ""
+    }
 }
+
+
+// TODO: if possible fix the message issue message goes up on keyboard open
+

@@ -70,9 +70,9 @@ fun MainScreen(
             hasNews = false
         ),
         BottomNavigationItem(
-            title = "Doubts",
-            selectedIcon = R.drawable.questionfill,
-            unselectedIcon = R.drawable.questionoutline,
+            title = "Focus",
+            selectedIcon = R.drawable.focusfill,
+            unselectedIcon = R.drawable.focus,
             hasNews = false
         )
     )
