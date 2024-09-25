@@ -1,5 +1,6 @@
 package com.example.studybuddy.view.task
 
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.app.TimePickerDialog
@@ -363,14 +364,19 @@ private fun TaskScreen(
         }
 
         Button(
-            enabled = taskTitleError==null,
+            enabled = taskTitleError == null,
             onClick = {
-                      if (state.isReminderSet){
-                          setAlarm(context,state.dueDate!!,state.dueTime!!,state.title,state.currentTaskId!!)
-                      }
-                else{
-                    cancelAlarm(context,state.currentTaskId!!)
-                      }
+                if (state.isReminderSet) {
+                    setAlarm(
+                        context,
+                        state.dueDate,
+                        state.dueTime,
+                        state.title,
+                        state.currentTaskId
+                    )
+                } else {
+                    state.currentTaskId?.let { cancelAlarm(context, it) }
+                }
                 onEvent(TaskEvent.SaveTask)
             },
             modifier = Modifier
@@ -378,7 +384,6 @@ private fun TaskScreen(
                 .padding(vertical = 12.dp)
         ) {
             Text(text = "Save")
-
         }
 
 
@@ -452,7 +457,14 @@ private fun PriorityButton(
 }
 
 
-fun setAlarm(context: Context, dueDate: Long, dueTime: Long, taskTitle: String, taskId: Int) {
+@SuppressLint("ScheduleExactAlarm")
+fun setAlarm(context: Context, dueDate: Long?, dueTime: Long?, taskTitle: String, taskId: Int?) {
+    // Check if any of the required parameters are null
+    if (dueDate == null || dueTime == null || taskId == null) {
+        Toast.makeText(context, "Cannot set alarm: missing information", Toast.LENGTH_SHORT).show()
+        return
+    }
+
     val calendar = Calendar.getInstance().apply {
         timeInMillis = dueDate
         val dueTimeCalendar = Calendar.getInstance().apply {
@@ -465,17 +477,22 @@ fun setAlarm(context: Context, dueDate: Long, dueTime: Long, taskTitle: String, 
 
     val timeInMillis = calendar.timeInMillis - (5 * 60 * 1000) // Set alarm 5 minutes before the due date and time
 
-    Toast.makeText(context, "Alarm set for $timeInMillis", Toast.LENGTH_SHORT).show()
+    Toast.makeText(context, "Alarm set for ${calendar.time}", Toast.LENGTH_SHORT).show()
     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
     val intent = Intent(context, AlarmReceiver::class.java).apply {
         putExtra("taskTitle", taskTitle)
     }
     val pendingIntent = PendingIntent.getBroadcast(context, taskId, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
-    alarmManager.set(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent)
+    alarmManager.setExact(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent)
 }
 
-private fun cancelAlarm(context: Context, taskId: Int) {
+private fun cancelAlarm(context: Context, taskId: Int?) {
+    if (taskId == null) {
+        Toast.makeText(context, "Cannot cancel alarm: missing task ID", Toast.LENGTH_SHORT).show()
+        return
+    }
+
     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
     val intent = Intent(context, AlarmReceiver::class.java)
     val pendingIntent = PendingIntent.getBroadcast(context, taskId, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
