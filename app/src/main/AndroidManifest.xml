@@ -2,11 +2,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-    <uses-permission android:name="com.android.alarm.permission.SET_ALARM"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission
+        android:name="android.permission.CAMERA"
+        tools:ignore="PermissionImpliesUnsupportedChromeOsHardware" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
 
     <application
         android:name=".StudyBuddyApp"
@@ -20,11 +27,14 @@
         android:theme="@style/Theme.StudyBuddy"
         tools:targetApi="31">
         <activity
+            android:name=".view.videocall.CloseActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:windowSoftInputMode="adjustResize"
-            android:theme="@style/Theme.StudyBuddy">
+            android:theme="@style/Theme.StudyBuddy"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -32,11 +42,18 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".view.session.StudySessionTimerService"
-            android:foregroundServiceType="specialUse"
-            android:exported="false"/>
+        <service
+            android:name=".view.session.StudySessionTimerService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse" />
 
-        <receiver android:name=".view.task.AlarmReceiver"/>
+<service android:name=".view.videocall.service.CallService"
+    android:foregroundServiceType="dataSync"
+    tools:ignore="ForegroungServicePermission"/>
+
+        <receiver android:name=".view.videocall.service.CallBroadcastReceiver"/>
+
+        <receiver android:name=".view.task.AlarmReceiver" />
     </application>
 
 </manifest>

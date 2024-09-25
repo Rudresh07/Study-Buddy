@@ -20,6 +20,8 @@ import com.example.studybuddy.domain.model.BottomNavigationItem
 import com.example.studybuddy.view.chat.ChatListScreen
 import com.example.studybuddy.view.chat.ChatListViewModel
 import com.example.studybuddy.view.dashboard.DashBoardScreenRoute
+import com.example.studybuddy.view.videocall.HomeScreen
+import com.example.studybuddy.view.videocall.HomeScreenRoute
 import com.ramcosta.composedestinations.annotation.DeepLink
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
@@ -69,12 +71,12 @@ fun MainScreen(
             unselectedIcon = R.drawable.videocalloutline,
             hasNews = false
         ),
-        BottomNavigationItem(
-            title = "Focus",
-            selectedIcon = R.drawable.focusfill,
-            unselectedIcon = R.drawable.focus,
-            hasNews = false
-        )
+//        BottomNavigationItem(
+//            title = "Focus",
+//            selectedIcon = R.drawable.focusfill,
+//            unselectedIcon = R.drawable.focus,
+//            hasNews = false
+//        )
     )
 
     var selectedIndex by remember { mutableStateOf(initialSelectedIndex) }
@@ -123,7 +125,7 @@ fun ContentScreen(navigator: DestinationsNavigator,modifier: Modifier = Modifier
     when (selectedIndex) {
         0 -> DashBoardScreenRoute(navigator)
         1 -> ChatListScreen(navigator)
-        2 -> Text("Calls Screen", modifier = modifier.fillMaxSize())
-        3 -> Text("Doubts Screen", modifier = modifier.fillMaxSize())
+        2 -> HomeScreenRoute(navigator)
+//        3 -> Text("Doubts Screen", modifier = modifier.fillMaxSize())
     }
 }
